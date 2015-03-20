@@ -45,7 +45,7 @@ static QScriptValue xslxFormat_setHorizontalAlignment(QScriptContext *context, Q
     QXlsx::Format* format = qscriptvalue_cast<QXlsx::Format*>(context->thisObject());
     if (!format)
         return context->throwError(QScriptContext::TypeError, QObject::tr("this object is not an Xlsx.Format."));
-    if (context->argumentCount() != 1)
+    if (context->argumentCount() != 1 || !context->argument(0).isNumber())
         return context->throwError(QScriptContext::SyntaxError, QObject::tr("fontSize is a number."));
 
     format->setHorizontalAlignment((QXlsx::Format::HorizontalAlignment)context->argument(0).toNumber());
