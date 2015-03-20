@@ -148,3 +148,8 @@ QScriptValue XlsxDocument::currentWorksheet() const
     return ws ? engine()->toScriptValue(ws) : engine()->nullValue();
 }
 
+bool XlsxDocument::mergeCells(const QString &range, const Format &format)
+{
+    return m_document->mergeCells(CellRange(range), format);
+}
+

@@ -1,6 +1,8 @@
 #ifndef XLSXDOCUMENT_H
 #define XLSXDOCUMENT_H
 
+#include <QXlsx/xlsxformat.h>
+
 #include <QVariant>
 #include <QScriptValue>
 #include <QScriptable>
@@ -47,9 +49,11 @@ public:
     Q_INVOKABLE void setDocumentProperty(const QString& key, const QString& property);
     Q_INVOKABLE QStringList sheetNames() const;
 
+
     Q_INVOKABLE QScriptValue rowCount() const;
     Q_INVOKABLE QScriptValue columnCount() const;
     Q_INVOKABLE QScriptValue currentWorksheet() const;
+    Q_INVOKABLE bool mergeCells(const QString &range, const QXlsx::Format &format= QXlsx::Format());
 
     Q_INVOKABLE QScriptValue worksheet(const QString& sheetName) const;
     Q_INVOKABLE bool write();

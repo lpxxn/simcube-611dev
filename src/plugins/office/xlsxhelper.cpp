@@ -40,6 +40,19 @@ static QScriptValue xslxFormat_setFontSize(QScriptContext *context, QScriptEngin
     return eng->undefinedValue();
 }
 
+static QScriptValue xslxFormat_setHorizontalAlignment(QScriptContext *context, QScriptEngine *eng)
+{
+    QXlsx::Format* format = qscriptvalue_cast<QXlsx::Format*>(context->thisObject());
+    if (!format)
+        return context->throwError(QScriptContext::TypeError, QObject::tr("this object is not an Xlsx.Format."));
+    if (context->argumentCount() != 1)
+        return context->throwError(QScriptContext::SyntaxError, QObject::tr("fontSize is a number."));
+
+    format->setHorizontalAlignment((QXlsx::Format::HorizontalAlignment)context->argument(0).toNumber());
+
+    return eng->undefinedValue();
+}
+
 void XlsxHelper::registerFormat(QScriptEngine *eng, QScriptValue& parentProperty)
 {
     QScriptValue proto = eng->newObject();
@@ -55,7 +68,13 @@ void XlsxHelper::registerFormat(QScriptEngine *eng, QScriptValue& parentProperty
     format.setProperty(QStringLiteral("FontScriptNormal"), QXlsx::Format::FontScriptNormal);
     format.setProperty(QStringLiteral("FontScriptSuper"), QXlsx::Format::FontScriptSuper);
     format.setProperty(QStringLiteral("FontScriptSub"), QXlsx::Format::FontScriptSub);
+
+    // HorizontalAlignment
+    format.setProperty(QStringLiteral("AlignHCenter"), QXlsx::Format::AlignHCenter);
+    format.setProperty(QStringLiteral("AlignRight"), QXlsx::Format::AlignRight);
+    proto.setProperty(QStringLiteral("setHorizontalAlignment"), eng->newFunction(xslxFormat_setHorizontalAlignment));
 }
+
 
 
 /// QXlsx::Cell 类导出至JavaScript环境
@@ -425,6 +444,23 @@ static QScriptValue xslxWorksheet_columnCount(QScriptContext *context, QScriptEn
     return cellRange.lastColumn();
 }
 
+static QScriptValue xslxWorksheet_mergeCells(QScriptContext *context, QScriptEngine */*eng*/)
+{
+    //const QString &range, const QXlsx::Format &format= QXlsx::Format()
+    QXlsx::Worksheet* ws = qscriptvalue_cast<QXlsx::Worksheet*>(context->thisObject());
+    if (!ws)
+        return context->throwError(QStringLiteral("It is not a valid Worksheet."));
+
+    const int n = context->argumentCount();
+    if (n > 2 || n == 0)
+        return context->throwError(QStringLiteral("please provide one or two arguments"));
+    QString range = context->argument(0).toString();
+    QXlsx::Format format;
+    if (n == 1)
+        format = qscriptvalue_cast<QXlsx::Format>(context->argument(1));
+
+    return ws->mergeCells(QXlsx::CellRange(range), format);
+}
 
 void XlsxHelper::registerWorksheet(QScriptEngine *eng, QScriptValue &/*parentProperty*/)
 {
@@ -438,8 +474,10 @@ void XlsxHelper::registerWorksheet(QScriptEngine *eng, QScriptValue &/*parentPro
     proto.setProperty(QStringLiteral("writeInlineString"), eng->newFunction(xslxWorksheet_writeInlineString));
     proto.setProperty(QStringLiteral("writeNumeric"), eng->newFunction(xslxWorksheet_writeNumeric));
     proto.setProperty(QStringLiteral("writeString"), eng->newFunction(xslxWorksheet_writeString));
+
     proto.setProperty(QStringLiteral("rowCount"), eng->newFunction(xslxWorksheet_rowCount));
     proto.setProperty(QStringLiteral("columnCount"), eng->newFunction(xslxWorksheet_columnCount));
+    proto.setProperty(QStringLiteral("mergeCells"), eng->newFunction(xslxWorksheet_mergeCells));
 
     eng->setDefaultPrototype(qMetaTypeId<QXlsx::Worksheet*>(), proto);
 }

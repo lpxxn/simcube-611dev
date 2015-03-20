@@ -12,6 +12,10 @@ function testXlsx1() {
     cell = xlsx.cellAt("A3");
     print("A3 hasFormula: ", cell.hasFormula);
 
+	print('a lign  ', office.Xlsx.Format.AlignRight);
+	format.setHorizontalAlignment(office.Xlsx.Format.AlignRight);
+	xlsx.write("B3", "abc", format);
+	
     xlsx.write("A4", true, format);
     cell = xlsx.cellAt("A4");
     print("A4 format font size: ", cell.format.fontSize);
@@ -28,9 +32,11 @@ function testXlsx1() {
     xlsx.addSheet("aaa");
     curreentws = xlsx.currentWorksheet();
     curreentws.writeString("A8", "aa");
+	curreentws.mergeCells('B4:F6');
     print("test1 rowCount", curreentws.rowCount(), "test1 columnCount", curreentws.columnCount());
-    //print(xlsx.rowCount());
-    //print(xlsx.rowCount());
+    
+	xlsx.mergeCells('J3:J9', format);
+	xlsx.mergeCells('B8:C21');
     xlsx.save();
 }
 
