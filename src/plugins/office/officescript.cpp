@@ -130,7 +130,7 @@ void OfficeScript::initialize(const QString &key, QScriptEngine *engine)
         XlsxHelper::registerFormat(engine, xlsx);
         XlsxHelper::registerCell(engine, xlsx);
         XlsxHelper::registerWorksheet(engine, xlsx);
-
+        XlsxHelper::registerImage(engine, xlsx);
         registerFunctions(officeObj, engine);
     }
 }

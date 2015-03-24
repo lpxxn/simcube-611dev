@@ -5,6 +5,7 @@
 
 #include <QScriptEngine>
 #include <QDebug>
+#include <QImage>
 
 using namespace QXlsx;
 
@@ -52,6 +53,21 @@ bool XlsxDocument::copySheet(const QString &srcName, const QString &distName)
 bool XlsxDocument::deleteSheet(const QString &name)
 {
     return m_document->deleteSheet(name);
+}
+
+bool XlsxDocument::insertSheet(int index, const QString &name, SheetType type)
+{
+    return m_document->insertSheet(index, name, (QXlsx::AbstractSheet::SheetType)type);
+}
+
+bool XlsxDocument::renameSheet(const QString &oldName, const QString &newName)
+{
+    return m_document->renameSheet(oldName, newName);
+}
+
+bool XlsxDocument::moveSheet(const QString &srcName, int distIndex)
+{
+    return m_document->moveSheet(srcName, distIndex);
 }
 
 QString XlsxDocument::documentProperty(const QString &key) const
@@ -152,4 +168,141 @@ bool XlsxDocument::mergeCells(const QString &range, const Format &format)
 {
     return m_document->mergeCells(CellRange(range), format);
 }
+
+bool XlsxDocument::unmergeCells(const QString &range)
+{
+    return m_document->unmergeCells(CellRange(range));
+}
+
+bool XlsxDocument::insertImage(int row, int col, const QString &imgPath)
+{
+    QImage img(imgPath);
+
+    return m_document->insertImage(row, col, img);
+}
+
+bool XlsxDocument::insertImage(int row, int col, const QImage &img)
+{
+    return m_document->insertImage(row, col, img);
+}
+
+bool XlsxDocument::setColumnWidth(int column, double width)
+{
+    return m_document->setColumnWidth(column, width);
+}
+
+bool XlsxDocument::setColumnWidth(int colFirst, int colLast, double width)
+{
+    return m_document->setColumnWidth(colFirst, colLast, width);
+}
+
+bool XlsxDocument::setColumnFormat(int column, const Format &format)
+{
+    return m_document->setColumnFormat(column, format);
+}
+
+bool XlsxDocument::setColumnFormat(int colFirst, int colLast, const Format &format)
+{
+    return m_document->setColumnFormat(colFirst, colLast, format);
+}
+
+bool XlsxDocument::setColumnHidden(int column, bool hidden)
+{
+    return m_document->setColumnHidden(column, hidden);
+}
+
+bool XlsxDocument::setColumnHidden(int colFirst, int colLast, bool hidden)
+{
+    return m_document->setColumnHidden(colFirst, colLast, hidden);
+}
+
+double XlsxDocument::columnWidth(int column)
+{
+    return m_document->columnWidth(column);
+}
+
+QScriptValue XlsxDocument::columnFormat(int column)
+{
+    return engine()->toScriptValue(m_document->columnFormat(column));
+}
+
+bool XlsxDocument::isColumnHidden(int column)
+{
+    return m_document->isColumnHidden(column);
+}
+
+bool XlsxDocument::setRowHeight(int row, double height)
+{
+    return m_document->setRowHeight(row, height);
+}
+
+bool XlsxDocument::setRowFormat(int row, const Format &format)
+{
+    return m_document->setRowFormat(row, format);
+}
+
+bool XlsxDocument::setRowHidden(int row, bool hidden)
+{
+    return m_document->setRowHidden(row, hidden);
+}
+
+bool XlsxDocument::setRowHeight(int rowFirst, int rowLast, double height)
+{
+    return m_document->setRowHeight(rowFirst, rowLast, height);
+}
+
+bool XlsxDocument::setRowFormat(int rowFirst, int rowLast, const Format &format)
+{
+    return m_document->setRowFormat(rowFirst, rowLast, format);
+}
+
+bool XlsxDocument::setRowHidden(int rowFirst, int rowLast, bool hidden)
+{
+    return m_document->setRowHeight(rowFirst, rowLast, hidden);
+}
+
+double XlsxDocument::rowHeight(int row)
+{
+    return m_document->rowHeight(row);
+}
+
+QScriptValue XlsxDocument::rowFormat(int row)
+{
+    return engine()->toScriptValue(m_document->rowFormat(row));
+}
+
+bool XlsxDocument::isRowHidden(int row)
+{
+    return m_document->isRowHidden(row);
+}
+
+bool XlsxDocument::groupRows(int rowFirst, int rowLast, bool collapsed)
+{
+    return m_document->groupRows(rowFirst, rowLast, collapsed);
+}
+
+bool XlsxDocument::groupColumns(int colFirst, int colLast, bool collapsed)
+{
+    return m_document->groupColumns(colFirst, colLast, collapsed);
+}
+
+//QScriptValue XlsxDocument::cellAt(int row, int col) const
+//{
+//    if (Worksheet *sheet = m_document->currentWorksheet())
+//        return engine()->toScriptValue(sheet->cellAt(row, col));
+//    return engine()->nullValue();
+//}
+
+bool XlsxDocument::defineName(const QString &name, const QString &formula, const QString &comment, const QString &scope)
+{
+    return m_document->defineName(name, formula, comment, scope);
+}
+
+
+
+
+
+
+
+
 

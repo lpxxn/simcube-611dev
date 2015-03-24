@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>testoffice.js</file>
+        <file>light.jpg</file>
     </qresource>
 </RCC>

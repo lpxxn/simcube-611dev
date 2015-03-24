@@ -37,6 +37,11 @@ function testXlsx1() {
     
 	xlsx.mergeCells('J3:J9', format);
 	xlsx.mergeCells('B8:C21');
+	xlsx.unmergeCells('B8:C21');
+	xlsx.insertImage(5, 5, "e:/light.jpg");
+	var img = new office.Xlsx.Image("e:/light.jpg");
+	img = img.setSize(80, 80);
+	xlsx.insertImage(19, 5, img);
     xlsx.save();
 }
 

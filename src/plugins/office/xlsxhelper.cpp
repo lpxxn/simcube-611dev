@@ -3,6 +3,7 @@
 
 #include <QScriptEngine>
 #include <QDateTime>
+#include <QImage>
 #include <QDebug>
 
 /// QXlsx::Format 类导出至JavaScript环境
@@ -74,8 +75,6 @@ void XlsxHelper::registerFormat(QScriptEngine *eng, QScriptValue& parentProperty
     format.setProperty(QStringLiteral("AlignRight"), QXlsx::Format::AlignRight);
     proto.setProperty(QStringLiteral("setHorizontalAlignment"), eng->newFunction(xslxFormat_setHorizontalAlignment));
 }
-
-
 
 /// QXlsx::Cell 类导出至JavaScript环境
 static QScriptValue xslxCell_cellType(QScriptContext *context, QScriptEngine *)
@@ -179,6 +178,45 @@ void XlsxHelper::registerCell(QScriptEngine *eng, QScriptValue &parentProperty)
     cell.setProperty(QStringLiteral("SharedStringType"), QXlsx::Cell::SharedStringType);
     cell.setProperty(QStringLiteral("StringType"), QXlsx::Cell::StringType);
     cell.setProperty(QStringLiteral("InlineStringType"), QXlsx::Cell::InlineStringType);
+}
+
+static QScriptValue constructXlsxImage(QScriptContext* context, QScriptEngine* engine)
+{
+    if (!context->isCalledAsConstructor())
+        return context->throwError(QScriptContext::SyntaxError, QObject::tr("please use the 'new' operator."));
+
+    const int argCount = context->argumentCount();
+    if (argCount > 1 || argCount == 0)
+        return context->throwError(QScriptContext::SyntaxError, QObject::tr("please provide one argument."));
+
+    return engine->toScriptValue(QImage(context->argument(0).toString()));
+
+}
+
+static QScriptValue xslxCell_setSize(QScriptContext *context, QScriptEngine *eng)
+{
+    QImage img = qscriptvalue_cast<QImage>(context->thisObject());
+    if (img.isNull())
+        return context->throwError(QScriptContext::TypeError, QObject::tr("this object is not an Xlsx.Image."));
+    int args = context->argumentCount();
+
+    if (args == 0 || args > 2)
+        return context->throwError(QScriptContext::SyntaxError, QObject::tr("please provide two arguments."));
+
+    img = img.scaled(context->argument(0).toNumber(), context->argument(1).toNumber(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    return eng->toScriptValue(img);
+}
+
+void XlsxHelper::registerImage(QScriptEngine *eng, QScriptValue &parentProperty)
+{
+    QScriptValue proto = eng->newObject();
+    proto.setProperty(QStringLiteral("setSize"), eng->newFunction(xslxCell_setSize));
+
+    eng->setDefaultPrototype(qMetaTypeId<QImage>(), proto);
+    QScriptValue ctor = eng->newFunction(constructXlsxImage, proto);
+    parentProperty.setProperty(QStringLiteral("Image"), ctor);
+    //QScriptValue image = parentProperty.property(QStringLiteral("Image"));
+
 }
 
 
@@ -444,6 +482,20 @@ static QScriptValue xslxWorksheet_columnCount(QScriptContext *context, QScriptEn
     return cellRange.lastColumn();
 }
 
+static QScriptValue xslxWorksheet_insertImage(QScriptContext *context, QScriptEngine */*eng*/)
+{
+
+    QXlsx::Worksheet* ws = qscriptvalue_cast<QXlsx::Worksheet*>(context->thisObject());
+    if (!ws)
+        return context->throwError(QStringLiteral("It is not a valid Worksheet."));
+
+    const int n = context->argumentCount();
+    if (n > 3 || n == 0)
+        return context->throwError(QStringLiteral("please provide three arguments"));
+
+    return ws->insertImage(context->argument(0).toNumber(), context->argument(1).toNumber(), QImage(context->argument(2).toString()));
+}
+
 static QScriptValue xslxWorksheet_mergeCells(QScriptContext *context, QScriptEngine */*eng*/)
 {
     //const QString &range, const QXlsx::Format &format= QXlsx::Format()
@@ -462,6 +514,19 @@ static QScriptValue xslxWorksheet_mergeCells(QScriptContext *context, QScriptEng
     return ws->mergeCells(QXlsx::CellRange(range), format);
 }
 
+static QScriptValue xslxWorksheet_unmergeCells(QScriptContext *context, QScriptEngine */*eng*/)
+{
+    QXlsx::Worksheet* ws = qscriptvalue_cast<QXlsx::Worksheet*>(context->thisObject());
+    if (!ws)
+        return context->throwError(QStringLiteral("It is not a valid Worksheet."));
+    const int n = context->argumentCount();
+    if (n > 1 || n == 0)
+        return context->throwError(QStringLiteral("please provide one or two arguments"));
+
+    QString range = context->argument(0).toString();
+    return ws->unmergeCells(QXlsx::CellRange(range));
+}
+
 void XlsxHelper::registerWorksheet(QScriptEngine *eng, QScriptValue &/*parentProperty*/)
 {
     QScriptValue proto = eng->newObject();
@@ -478,6 +543,8 @@ void XlsxHelper::registerWorksheet(QScriptEngine *eng, QScriptValue &/*parentPro
     proto.setProperty(QStringLiteral("rowCount"), eng->newFunction(xslxWorksheet_rowCount));
     proto.setProperty(QStringLiteral("columnCount"), eng->newFunction(xslxWorksheet_columnCount));
     proto.setProperty(QStringLiteral("mergeCells"), eng->newFunction(xslxWorksheet_mergeCells));
+    proto.setProperty(QStringLiteral("unmergeCells"), eng->newFunction(xslxWorksheet_unmergeCells));
+    proto.setProperty(QStringLiteral("insertImage"), eng->newFunction(xslxWorksheet_insertImage));
 
     eng->setDefaultPrototype(qMetaTypeId<QXlsx::Worksheet*>(), proto);
 }

@@ -9,7 +9,8 @@ SOURCES += main.cpp
 HEADERS += \
 
 DISTFILES += \
-    testoffice.js
+    testoffice.js \
+    light.jpg
 
 RESOURCES += \
     testoffice.qrc
