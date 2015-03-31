@@ -1,10 +1,12 @@
 message("---xlsx-LIbs")
 INCLUDEPATH *= $$THIRDPARTYINCLUDE
 message($$THIRDPARTYINCLUDE)
+
 message($$INCLUDEPATH)
 
 DEFINES += QT_BUILD_XLSX_LIB
 message($$QT_BUILD_XLSX_LIB)
+
 message($$DEFINES)
 
 win32-msvc*:contains(QMAKE_HOST.arch, x86_64): {
